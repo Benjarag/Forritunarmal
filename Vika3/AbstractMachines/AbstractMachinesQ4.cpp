@@ -7,9 +7,9 @@ using namespace chrono;
 int main() {
     auto start = high_resolution_clock::now();
     
-    volatile int x = 0; // Notum volatile til að forðast afköst
+    volatile int counter = 0;
     for (int i = 0; i < 100'000'000; ++i) {
-        x += 1;
+        counter++;
     }
     
     auto end = high_resolution_clock::now();
