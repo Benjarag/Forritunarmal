@@ -1,0 +1,63 @@
+# General OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Python specific
+__pycache__/
+*.py[cod]
+.python-version
+venv/
+.env/
+.venv/
+Pipfile.lock
+mypy_cache/
+.pytest_cache/
+
+# C specific
+*.exe
+*.out
+*.o
+*.a
+*.so
+*.dll
+*.dSYM/
+*.ide/
+build/
+dist/
+bin/
+obj/
+
+# IDE specific
+.vscode/
+.idea/
+*.code-workspace
+
+# Compiler/output directories
+__pycache__/
+*.dSYM/
+*.egg-info/
+*.egg
+
+# Debug files
+*.log
+*.tmp
+*.bak
+
+# Dependency directories
+vendor/
+third_party/
+
+# Build artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.jks
+
+# Local development files
+.env.local
+.env.development
+.env.test
