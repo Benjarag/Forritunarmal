@@ -47,7 +47,7 @@ class LLexer:
             lexeme = char
             while True:
                 next_char = self.peek_next_char()
-                if next_char is None or not next_char.isalnum():
+                if next_char is None or not next_char.isalpha():
                     break
                 lexeme += self.get_next_char()
 

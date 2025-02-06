@@ -1,2 +1,10 @@
-a=4-2;
-print a;
+PUSH fLAwA
+PRINT
+PUSH fdjZ
+PRINT
+PUSH fdjZ
+PRINT
+PUSH cTtHO
+PRINT
+PUSH cTtHO
+PRINT

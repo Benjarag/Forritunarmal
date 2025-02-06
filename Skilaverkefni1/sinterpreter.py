@@ -39,7 +39,7 @@ class SInterpreter:
             elif operator[0] == "ADD":
                 if len(self.stack) < 2:
                     print("Error: Not enough operands for ADD.") 
-                    continue
+                    continue # change
                 value2 = self.stack.pop()
                 value1 = self.stack.pop()
                 # checking if the values are variables or numbers
