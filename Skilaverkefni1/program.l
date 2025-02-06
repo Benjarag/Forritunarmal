@@ -1,3 +1,10 @@
-var = 3 ! ;
-print var;
-end
+PUSH fLAwA
+PRINT
+PUSH fdjZ
+PRINT
+PUSH fdjZ
+PRINT
+PUSH cTtHO
+PRINT
+PUSH cTtHO
+PRINT

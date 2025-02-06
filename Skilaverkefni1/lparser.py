@@ -37,16 +37,16 @@ class LParser:
 
     def term(self):
         self.factor()
-        while self.curr_token.token_code == LToken.MULT:
+        if self.curr_token.token_code == LToken.MULT:
             self.next_token()
-            self.factor()
+            self.term()
             print("MULT")
 
     def expr(self):
         self.term()
-        while self.curr_token.token_code == LToken.PLUS:
+        if self.curr_token.token_code == LToken.PLUS:
             self.next_token() # consuming the plus
-            self.term() # expr after the plus
+            self.expr() # expr after the plus
             print("ADD")
 
     def statement(self):

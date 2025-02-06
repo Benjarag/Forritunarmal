@@ -103,8 +103,11 @@ class SInterpreter:
                 print_val = self.stack.pop()
                 if isinstance(print_val, str) and print_val in self.variables:
                     print_val = self.variables[print_val]  # get the variable's value
-                print(print_val)
-                
+                if isinstance(print_val, str):
+                    print(0)
+                else:
+                    print(print_val)                
+                    
             else:
                 print(f"Error for operator: {operator[0]}")
 
