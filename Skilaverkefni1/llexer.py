@@ -21,11 +21,12 @@ class LLexer:
 
     def get_next_token(self):
         char = self.get_next_char()
+
         while char is not None and char.isspace():
             char = self.get_next_char()
 
         if char is None:
-            return LToken("", LToken.END)
+            return LToken("", LToken.ERROR)
 
         if char == ";":
             return LToken(";", LToken.SEMICOL)
@@ -72,5 +73,9 @@ if __name__ == "__main__":
     while True:
         token = lexer.get_next_token()
         if token.token_code == LToken.END:
+            print(token)
+            break
+        if token.token_code == LToken.ERROR:
+            print(LToken(token.lexeme, token.token_code))
             break
         print(token)

@@ -9,7 +9,7 @@ class LParser:
     def parse(self):
         self.next_token()
         self.statements()
-        print("")
+        print()
     
     def factor(self):
         if self.curr_token.token_code == LToken.INT:
@@ -94,4 +94,4 @@ class LParser:
 
     def error(self):
         print("Syntax error")
-        sys.exit(1)
+        quit()
