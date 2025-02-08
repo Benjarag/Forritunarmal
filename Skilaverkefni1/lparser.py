@@ -1,5 +1,4 @@
 from ltoken import LToken
-import sys
 
 class LParser:
     def __init__(self, lexer):

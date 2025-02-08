@@ -5,113 +5,111 @@ class SInterpreter:
         self.stack = []
         self.variables = {}
 
+    def _resolve_value(self, value):
+        """Resolve a value to an integer, handling variable references recursively."""
+        while isinstance(value, str):
+            value = self.variables.get(value, 0)
+        return value if isinstance(value, int) else 0
 
     def cycle(self):
         ''' Implements "fetch-decode-execute cycle" '''
         for line in sys.stdin:
-
+            line = line.strip()
             if not line:
-                continue
-            
+                continue  # Skip empty lines
+
             operator = line.split()
-
             if not operator:
-                continue
+                continue  # Skip lines with no tokens
 
-            if operator[0] == "PUSH":
+            op = operator[0].upper()
+
+            if op == "PUSH":
+                if len(operator) != 2:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 operand = operator[1]
-                if operand.isdigit(): # operand is a number
-                    self.stack.append(int(operand))
-                elif operand.isalnum(): # operand is a variable
-                    self.stack.append(operand)  # just push the variable name, not its value
-                else:
-                    print(f"Error: Invalid operand '{operand}'")
-                    continue
+                try:
+                    num = int(operand)
+                    self.stack.append(num)
+                except ValueError:
+                    if operand.isalpha():
+                        self.stack.append(operand)
+                    else:
+                        print(f"Error for operator: {operator[0]}")
+                        quit()
 
-            elif operator[0] == "ASSIGN":
+            elif op == "ASSIGN":
+                if len(operator) != 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 if len(self.stack) < 2:
-                    print("Error: Not enough operands for ASSIGN.") 
-                    continue
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 value = self.stack.pop()
                 variable_name = self.stack.pop()
-                self.variables[variable_name] = value
+                if not isinstance(variable_name, str):
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
+                # Resolve the value to an integer BEFORE assigning it to the variable
+                resolved_value = self._resolve_value(value)
+                self.variables[variable_name] = resolved_value  # Store the resolved integer
 
-            elif operator[0] == "ADD":
+            elif op == "ADD":
+                if len(operator) != 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 if len(self.stack) < 2:
-                    print("Error: Not enough operands for ADD.") 
-                    continue # change
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 value2 = self.stack.pop()
                 value1 = self.stack.pop()
-                # checking if the values are variables or numbers
-                if isinstance(value1, str) and value1 in self.variables:
-                    value1 = self.variables[value1]  # get the variable's value
-                elif not isinstance(value1, int):
-                    print(f"Error: Invalid operand '{value1}' for ADD.")
-                    continue
-
-                if isinstance(value2, str) and value2 in self.variables:
-                    value2 = self.variables[value2]  # get the variable's value
-                elif not isinstance(value2, int):
-                    print(f"Error: Invalid operand '{value2}' for ADD.")
-                    continue
-
-                # now we can safely add the values
+                # Resolve values to integers (handles nested variables)
+                value1 = self._resolve_value(value1)
+                value2 = self._resolve_value(value2)
                 total = value1 + value2
                 self.stack.append(total)
-                
-            elif operator[0] == "MULT":
+
+            elif op == "MULT":
+                if len(operator) != 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 if len(self.stack) < 2:
-                    print("Error: Not enough operands for MULT.") 
-                    continue
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 value2 = self.stack.pop()
                 value1 = self.stack.pop()
-                # checking if the values are variables or numbers
-                if isinstance(value1, str) and value1 in self.variables:
-                    value1 = self.variables[value1]  # get the variable's value
-                elif not isinstance(value1, int):
-                    print(f"Error: Invalid operand '{value1}' for ADD.")
-                    continue
-
-                if isinstance(value2, str) and value2 in self.variables:
-                    value2 = self.variables[value2]  # get the variable's value
-                elif not isinstance(value2, int):
-                    print(f"Error: Invalid operand '{value2}' for ADD.")
-                    continue
-                
+                value1 = self._resolve_value(value1)
+                value2 = self._resolve_value(value2)
                 total = value1 * value2
                 self.stack.append(total)
-            
-            elif operator[0] == "UMINUS":
-                if len(self.stack) < 1:
-                    print("Error: Not enough operands for UMINUS.") 
-                    continue
-                value = self.stack.pop()
-                # get the variables value if it's a variable
-                if isinstance(value, str) and value in self.variables:
-                    value = self.variables[value]  # get the variable's value
-                elif not isinstance(value, int):
-                    print(f"Error: Invalid operand '{value}' for UMINUS.")
-                    continue
 
+            elif op == "UMINUS":
+                if len(operator) != 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
+                if len(self.stack) < 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
+                value = self.stack.pop()
+                value = self._resolve_value(value)
                 minus_value = -value
                 self.stack.append(minus_value)
 
-            elif operator[0] == "PRINT":
+            elif op == "PRINT":
+                if len(operator) != 1:
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 if len(self.stack) < 1:
-                    print("Error: Not enough operands for PRINT.") 
-                    continue
+                    print(f"Error for operator: {operator[0]}")
+                    quit()
                 print_val = self.stack.pop()
-                if isinstance(print_val, str) and print_val in self.variables:
-                    print_val = self.variables[print_val]  # get the variable's value
-                if isinstance(print_val, str):
-                    print(0)
-                else:
-                    print(print_val)                
-                    
+                print_val = self._resolve_value(print_val)
+                print(print_val)
+
             else:
                 print(f"Error for operator: {operator[0]}")
-
-
+                quit()
 
 if __name__ == "__main__":
     interpreter = SInterpreter()
