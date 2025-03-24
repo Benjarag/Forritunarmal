@@ -2,6 +2,13 @@
 % specifically stated.
 % skjalið inniheldur skilgreiningar á öllum Prolog venslunum.
 
+
+
+
+%%%%%%%%%
+%%% 1 %%%
+%%%%%%%%%
+
 % In a particular computer science department, the list of teachers and
 % courses is as follows:
 % Instructor Course Abbreviation
@@ -42,12 +49,6 @@
 %% student(X) % X is a student at the department (a rule)
 %% takes_courses(X,L) % Student X takes all courses in list L (a rule)
 %% student_list(L) % L is a list of students (a rule)
-
-
-
-%%%%%%%%%
-%%% 1 %%%
-%%%%%%%%%
 
 % Teacher course facts
 teaches_course(hrafn, prla).
@@ -118,6 +119,8 @@ student_list(L) :- findall(X, student(X), S), list_to_set(S, L).
 %%%%%%%%%
 %%% 2 %%%
 %%%%%%%%%
+
+% Write the following relations:
 
 % myprefix(L1,L2) % The list L1 is a prefix of the list L2.
 myprefix([],_).
@@ -274,3 +277,113 @@ merge_sorted([H1|T1],[H2|T2],[H2|T3]) :- H1 > H2, merge_sorted([H1|T1],T2,T3).
 %%%%%%%%%
 %%% 3 %%%
 %%%%%%%%%
+
+% a) Stack
+% implement a stack in Prolog (by using lists) which consists of the following relations:
+
+% empty_stack(S)
+% S is an empty stack
+
+empty_stack([]).
+
+% push(Elem,Stack,NewStack)
+% NewStack is the result of pushing Elem onto the stack Stack.
+
+push(Elem,Stack,[Elem|Stack]).
+
+% pop(Elem, Stack, NewStack)
+% NewStack is the result of popping Elem from the stack Stack.
+
+pop(Elem,[Elem|T],T).
+
+% top(Elem, Stack)
+% Elem is the top element of the stack Stack.
+
+top(Elem,[Elem|Stack]).
+
+% Example:
+% ?- empty_stack(S), push(10, S, S1), push(20, S1, S2), pop(X, S2, S3), top(Top, S3).
+% S = [],
+% S1 = S3, S3 = [10],
+% S2 = [20, 10],
+% X = 20,
+% Top = 10.
+
+
+% b) Queue
+% implement a queue in Prolog (by using lists) which consists of the following relations:
+
+% empty_queue(S)
+% S is an empty queue
+
+empty_queue([]).
+
+% enqueue(Elem, Queue, NewQueue)
+% NewQueue is the result of adding Elem at the back of queue Queue.
+
+enqueue(Elem,[],[Elem]).
+enqueue(Elem,[H|TQ],[H|TNQ]) :- enqueue(Elem,TQ,TNQ).
+
+% dequeue(Elem, Queue, NewQueue)
+% NewQueue is the result of removing Elem from the front of queue Queue.
+
+dequeue(Elem,[Elem|T],T).
+
+% front(Elem, Queue)
+% Elem is the front elment of queue Queue.
+
+front(Elem,[Elem|Queue]).
+
+% Example:
+% ?- empty_queue(Q), enqueue(5, Q, Q1), enqueue(7, Q1, Q2), dequeue(X, Q2, Q3), front(First, Q3).
+% Q = [],
+% Q1 = [5],
+% Q2 = [5, 7],
+% X = 5,
+% Q3 = [7],
+% First = 7.
+
+
+
+%%%%%%%%%
+%%% 4 %%%
+%%%%%%%%%
+
+% Parsing
+
+% The following CFG is given:
+
+% <expr> ::= <term> | <term> + <expr>
+% <term> ::= <factor> | <factor> * <term>
+% <factor> ::= <num> | ( <expr> )
+
+% Let us assume that a string in this language is represented as a list of numbers
+% and symbols.
+% Example: The expression 5*(2+7) is represented as the list [5, *, '(', 2, +, 7, ')']
+
+% Write the relation expr(L) (and other necessary relations) such that L is a valid
+% expression according to the grammar. Here you can use the append and number relations.
+
+% <expr> ::= <term> | <term> + <expr>
+expr(Input|Remaining) :- term(Input,Remaining).
+expr(Input,Remaining) :- append(term(Input,Remaining),expr(Input,Remaining)).
+
+% <term> ::= <factor> | <factor> * <term>
+term(Input,Remaining) :- factor(Input,Remaining) 
+term(Input,Remaining) :- factor(L) * term(L).
+
+% <factor> ::= <num> | ( <expr> )
+factor([H|TInput],Remaining) :- number(H).
+
+factor(Input,Remaining) :- expr(Input,Remaining).
+
+% Examples:
+% ?- expr([5]).
+% true.
+% ?- expr([5,+,2]).
+% true.
+% ?- expr([5,+]).
+% false.
+% ?- expr([5, *, '(', 2, +, 7, ')']).
+% true.
+
