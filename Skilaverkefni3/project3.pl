@@ -100,20 +100,57 @@ takes_course(jona, cplus).
 
 
 % A teacher X teaches a student Y, if the student takes a course taught by the teacher
-teaches_student(X,Y) :- takes_course(Y, Z), teaches_course(X, Z).
+teaches_student(X,Y) :- takes_course(Y,Z), teaches_course(X,Z).
 
 % X is a student if they take at least one course
 student(X) :- takes_course(X, _).
 
 % Student X takes all courses in list L
-takes_courses(X, []) :- student(X).
-takes_courses(X, [H | T]) :- takes_course(X, H), takes_courses(X, T).
+takes_courses(X,[]) :- student(X), !.
+takes_courses(X,[H|T]) :- takes_course(X,H), takes_courses(X,T).
 
 % Get a list of all students
 % here we use findall to get a list of all students, 
 % then we use list_to_set to remove duplicates
-student_list(L) :- findall(X, student(X), S), list_to_set(S, L).
+student_list(L) :- findall(X,student(X),S), list_to_set(S,L).
 
+% Example queries and answers: 
+ 
+% ?- teaches_course(yngvi, Y). 
+% Y = comp ; 
+% Y = deep. 
+ 
+% ?- takes_course(X, dmath). 
+% X = siggi ; 
+% X = gummi ; 
+% X = jona. 
+ 
+% ?- teaches_student(hrafn, Y). 
+% Y = siggi ; 
+% Y = gunna ; 
+% Y = jona. 
+ 
+% ?- teaches_student(X, siggi). 
+% X = hrafn ; 
+% X = yngvi ; 
+% X = yngvi ; 
+% X = harpa ; 
+% X = kari ; 
+% false. 
+ 
+% ?- student(gunna). 
+% true. 
+ 
+% ?- student(bjossi). 
+% false.
+
+% ?- takes_courses(gummi, [dmath, dbase, prog]). 
+% true . 
+ 
+% ?- takes_courses(X, [prla, comp, deep]). 
+% X = siggi ; 
+% X = gunna ; 
+% false.
 
 
 %%%%%%%%%
@@ -188,7 +225,7 @@ remove_element(X,[H|T],[H|L]) :- remove_element(X,T,L).
 
 insert_element(Elem,L1,1,[Elem|L1]).
 % if Pos is greater than 1, then we recursively call insert_element with Pos-1
-insert_element(Elem,[H|L1],Pos,[H|L2]) :- insert_element(Elem,L1,NewPos,L2), Pos is NewPos + 1. 
+insert_element(Elem,[H|L1],Pos,[H|L2]) :- insert_element(Elem,L1,NewPos,L2), Pos is NewPos + 1, Pos > 0. 
 
 % Examples:
 % ?- insert_element(a,[b,c,d],1,[a,b,c,d]). 
@@ -211,10 +248,10 @@ insert_element(Elem,[H|L1],Pos,[H|L2]) :- insert_element(Elem,L1,NewPos,L2), Pos
 % element of L1 to produce the element of L2 at the current position in the 
 % recursion.
 
-add_up_to_helper([], [], _).
+add_up_to_helper([],[],_).
 add_up_to_helper([H1|T1],[H2|T2],Acc) :- H2 is H1 + Acc, add_up_to_helper(T1,T2,H2).
 
-add_up_to(L1, L2) :- add_up_to_helper(L1, L2, 0).
+add_up_to(L1,L2) :- add_up_to_helper(L1,L2,0).
 
 % Examples: 
 % ?- add_up_to([1,2,3,4],[1,3,6,10]). 
@@ -364,18 +401,31 @@ front(Elem,[Elem|Queue]).
 % Write the relation expr(L) (and other necessary relations) such that L is a valid
 % expression according to the grammar. Here you can use the append and number relations.
 
-% <expr> ::= <term> | <term> + <expr>
-expr(Input|Remaining) :- term(Input,Remaining).
-expr(Input,Remaining) :- append(term(Input,Remaining),expr(Input,Remaining)).
+% empty list indicates that the list should be empty after parsing
+expr(L) :- expr(L,[]). 
 
-% <term> ::= <factor> | <factor> * <term>
-term(Input,Remaining) :- factor(Input,Remaining) 
-term(Input,Remaining) :- factor(L) * term(L).
+% expr can be a term
+expr(Input,Remaining) :- term(Input,Remaining).
 
-% <factor> ::= <num> | ( <expr> )
-factor([H|TInput],Remaining) :- number(H).
+% Here we use append to separate the term and the rest of the expression where there is a + sign
+% then we call the term and facor with these two parts separately
+expr(Input,Remaining) :- append(Term,[+|Expr],Input), term(Term,[]), expr(Expr,Remaining).
 
-factor(Input,Remaining) :- expr(Input,Remaining).
+% term can be a factor
+term(Input,Remaining) :- factor(Input,Remaining).
+
+% Here we do the same thing as in expr, but with a * sign
+term(Input,Remaining) :- append(Factor,[*|Term],Input), factor(Factor,[]), term(Term,Remaining).
+
+% factor can be a number
+factor([H|T],Remaining) :- number(H).
+
+% Now we split to get the expression inside the parentheses
+% we do it in the beginning first by doing ['('|RestOfInput], and essentially disregard the parentheses
+% and then we use the append to split the expression inside the parentheses 
+% and the rest of the input, where we do the same as in the beginning and disregard the parentheses
+factor(['('|RestOfInput],Remaining) :- append(Expr,[')'|Remaining],RestOfInput), expr(Expr,[]). % Parse JUST what is inside the parentheses
+
 
 % Examples:
 % ?- expr([5]).
