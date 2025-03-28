@@ -418,7 +418,7 @@ term(Input,Remaining) :- factor(Input,Remaining).
 term(Input,Remaining) :- append(Factor,[*|Term],Input), factor(Factor,[]), term(Term,Remaining).
 
 % factor can be a number
-factor([H|T],Remaining) :- number(H).
+factor([H|Remaining],Remaining) :- number(H).
 
 % Now we split to get the expression inside the parentheses
 % we do it in the beginning first by doing ['('|RestOfInput], and essentially disregard the parentheses
